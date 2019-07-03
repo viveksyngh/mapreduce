@@ -1,6 +1,9 @@
 package mapreduce
 
-import "os"
+import (
+	"hash/fnv"
+	"os"
+)
 
 //KeyValue key value type pairs
 type KeyValue struct {
@@ -17,6 +20,7 @@ func readFile(fileName string) (int, []byte, error) {
 	if err != nil {
 		return bytesRead, buffer, err
 	}
+	defer file.Close()
 
 	fileinfo, err := file.Stat()
 	if err != nil {
@@ -32,4 +36,21 @@ func readFile(fileName string) (int, []byte, error) {
 	}
 
 	return bytesRead, buffer, err
+}
+
+//getHash return hash value of a string
+func getHash(s string) uint32 {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	return h.Sum32()
+}
+
+//exists checks if file exists or not
+func exists(filename string) bool {
+	if _, err := os.Stat(filename); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }
