@@ -11,7 +11,8 @@ import (
 //Map type of the map function
 type Map func(key, value string) *list.List
 
-func mapper(fileName string, mapFunc Map, reducerCount int) {
+//Mapper runs map function and produces intermediate output
+func Mapper(fileName string, mapFunc Map, reducerCount int) {
 
 	_, bytes, err := readFile(fileName)
 	if err != nil {
@@ -24,7 +25,7 @@ func mapper(fileName string, mapFunc Map, reducerCount int) {
 	for item := result.Front(); item != nil; item = item.Next() {
 		kv := item.Value.(KeyValue)
 		hash := getHash(kv.Key)
-		reducefilename := getReduceFileName(fileName, int(hash))
+		reducefilename := getReduceFilename(fileName, int(hash)%reducerCount)
 
 		var reducefile *os.File
 		if exists(reducefilename) {
@@ -39,7 +40,7 @@ func mapper(fileName string, mapFunc Map, reducerCount int) {
 		}
 		defer reducefile.Close()
 
-		_, err = reducefile.WriteString(fmt.Sprintf("%s\t%s", kv.Key, kv.Value))
+		_, err = reducefile.WriteString(fmt.Sprintf("%s\t%s\n", kv.Key, kv.Value))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -47,8 +48,8 @@ func mapper(fileName string, mapFunc Map, reducerCount int) {
 	}
 }
 
-//getReduceFileName get reducer file name
-func getReduceFileName(fileName string, reducerNumber int) string {
+//getReduceFilename get reducer file name
+func getReduceFilename(fileName string, reducerNumber int) string {
 	dir := path.Dir(fileName)
 	file := path.Base(fileName)
 
