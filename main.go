@@ -5,11 +5,14 @@ import (
 	"container/list"
 	"strings"
 
+	"strconv"
+
 	"github.com/viveksyngh/mapreduce/mapreduce"
 )
 
 func main() {
 	mapreduce.Mapper("/tmp/input.txt", mapFunc, 3)
+	mapreduce.Reducer("/tmp/input.txt", reduceFunc, 3)
 }
 
 func mapFunc(key, value string) *list.List {
@@ -24,4 +27,16 @@ func mapFunc(key, value string) *list.List {
 	}
 
 	return l
+}
+
+func reduceFunc(key string, values *list.List) mapreduce.KeyValue {
+	var totalValue int
+	for e := values.Front(); e != nil; e = e.Next() {
+		value := e.Value.(string)
+		intValue, err := strconv.Atoi(value)
+		if err == nil {
+			totalValue += intValue
+		}
+	}
+	return mapreduce.KeyValue{Key: key, Value: strconv.Itoa(totalValue)}
 }

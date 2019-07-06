@@ -21,7 +21,6 @@ func Mapper(fileName string, mapFunc Map, reducerCount int) {
 	}
 
 	result := mapFunc(fileName, string(bytes))
-
 	for item := result.Front(); item != nil; item = item.Next() {
 		kv := item.Value.(KeyValue)
 		hash := getHash(kv.Key)
@@ -38,14 +37,14 @@ func Mapper(fileName string, mapFunc Map, reducerCount int) {
 			fmt.Println(err)
 			return
 		}
-		defer reducefile.Close()
-
 		_, err = reducefile.WriteString(fmt.Sprintf("%s\t%s\n", kv.Key, kv.Value))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		reducefile.Close()
 	}
+
 }
 
 //getReduceFilename get reducer file name
