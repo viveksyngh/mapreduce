@@ -3,6 +3,8 @@ package mapreduce
 import (
 	"hash/fnv"
 	"os"
+	"path"
+	"strconv"
 )
 
 //KeyValue key value type pairs
@@ -53,4 +55,12 @@ func exists(filename string) bool {
 		}
 	}
 	return true
+}
+
+//getReduceFilename get reducer file name
+func getReduceFilename(fileName string, mapperID int, reducerNumber int) string {
+	dir := path.Dir(fileName)
+	file := path.Base(fileName)
+
+	return path.Join(dir, file+"-"+strconv.Itoa(reducerNumber))
 }

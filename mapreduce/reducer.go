@@ -13,12 +13,12 @@ import (
 type Reduce func(key string, values *list.List) KeyValue
 
 //Reducer reads intermediate data, runs reduce function and write output data
-func Reducer(fileName string, reduceFunc Reduce, mapperCount int) {
+func Reducer(reducerID int, fileName string, reduceFunc Reduce, mapperCount int) {
 	intermediateItems := make(map[string]*list.List)
 
 	for i := 0; i < mapperCount; i++ {
 
-		_, bytes, err := readFile(getReduceFilename(fileName, i))
+		_, bytes, err := readFile(getReduceFilename(fileName, i, reducerID))
 		if err != nil {
 			fmt.Println(err)
 			return

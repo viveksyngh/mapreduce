@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	mapreduce.Mapper("/tmp/input.txt", mapFunc, 3)
-	mapreduce.Reducer("/tmp/input.txt", reduceFunc, 3)
+	mapreduce.Mapper(1, "/tmp/input.txt", mapFunc, 3)
+	mapreduce.Reducer(1, "/tmp/input.txt", reduceFunc, 3)
 }
 
 func mapFunc(key, value string) *list.List {

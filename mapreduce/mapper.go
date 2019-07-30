@@ -4,15 +4,13 @@ import (
 	"container/list"
 	"fmt"
 	"os"
-	"path"
-	"strconv"
 )
 
 //Map type of the map function
 type Map func(key, value string) *list.List
 
 //Mapper runs map function and produces intermediate output
-func Mapper(fileName string, mapFunc Map, reducerCount int) {
+func Mapper(mapperID int, fileName string, mapFunc Map, reducerCount int) {
 
 	_, bytes, err := readFile(fileName)
 	if err != nil {
@@ -27,7 +25,7 @@ func Mapper(fileName string, mapFunc Map, reducerCount int) {
 	for item := result.Front(); item != nil; item = item.Next() {
 		kv := item.Value.(KeyValue)
 		hash := getHash(kv.Key) //TODO allow to use user defined function
-		reducefilename := getReduceFilename(fileName, int(hash)%reducerCount)
+		reducefilename := getReduceFilename(fileName, mapperID, int(hash)%reducerCount)
 
 		//create the file if does not exist
 		var reducefile *os.File
@@ -51,12 +49,4 @@ func Mapper(fileName string, mapFunc Map, reducerCount int) {
 		reducefile.Close()
 	}
 
-}
-
-//getReduceFilename get reducer file name
-func getReduceFilename(fileName string, reducerNumber int) string {
-	dir := path.Dir(fileName)
-	file := path.Base(fileName)
-
-	return path.Join(dir, file+"-"+strconv.Itoa(reducerNumber))
 }
