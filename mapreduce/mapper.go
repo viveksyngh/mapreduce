@@ -10,7 +10,7 @@ import (
 type Map func(key, value string) *list.List
 
 //Mapper runs map function and produces intermediate output
-func Mapper(mapperID int, fileName string, mapFunc Map, reducerCount int) {
+func Mapper(jobName string, mapperID int, fileName string, mapFunc Map, reducerCount int) {
 
 	_, bytes, err := readFile(fileName)
 	if err != nil {
@@ -25,7 +25,7 @@ func Mapper(mapperID int, fileName string, mapFunc Map, reducerCount int) {
 	for item := result.Front(); item != nil; item = item.Next() {
 		kv := item.Value.(KeyValue)
 		hash := getHash(kv.Key) //TODO allow to use user defined function
-		reducefilename := getReduceFilename(fileName, mapperID, int(hash)%reducerCount)
+		reducefilename := getIntermediateFileName(jobName, mapperID, int(hash)%reducerCount)
 
 		//create the file if does not exist
 		var reducefile *os.File

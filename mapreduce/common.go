@@ -1,6 +1,7 @@
 package mapreduce
 
 import (
+	"fmt"
 	"hash/fnv"
 	"os"
 	"path"
@@ -57,10 +58,30 @@ func exists(filename string) bool {
 	return true
 }
 
-//getReduceFilename get reducer file name
-func getReduceFilename(fileName string, mapperID int, reducerNumber int) string {
-	dir := path.Dir(fileName)
-	file := path.Base(fileName)
+//getIntermediateFileName get intermediate file path
+func getIntermediateFileName(jobName string, mapperID int, reducerID int) string {
+	baseDir := os.Getenv(DataDirEnvVar)
+	if len(baseDir) == 0 {
+		baseDir = DataDirectory
+	}
 
-	return path.Join(dir, file+"-"+strconv.Itoa(reducerNumber))
+	return path.Join(baseDir, jobName, getMapperName(mapperID), getReducerName(reducerID))
+}
+
+//getMapperName get job name from mapper ID
+func getMapperName(mapperID int) string {
+	mapperIDStr := strconv.Itoa(mapperID)
+	for i := 0; i < 4-len(mapperIDStr); i++ {
+		mapperIDStr = "0" + mapperIDStr
+	}
+	return fmt.Sprintf("m-%s", mapperIDStr)
+}
+
+//getReducerName get reducer job name from reducer ID
+func getReducerName(reducerID int) string {
+	reducerIDStr := strconv.Itoa(reducerID)
+	for i := 0; i < 4-len(reducerIDStr); i++ {
+		reducerIDStr = "0" + reducerIDStr
+	}
+	return fmt.Sprintf("r-%s", reducerIDStr)
 }
