@@ -85,3 +85,26 @@ func getReducerName(reducerID int) string {
 	}
 	return fmt.Sprintf("r-%s", reducerIDStr)
 }
+
+func getOutputFileName(jobName string, reducerID int) string {
+	reducerIDStr := strconv.Itoa(reducerID)
+	for i := 0; i < 4-len(reducerIDStr); i++ {
+		reducerIDStr = "0" + reducerIDStr
+	}
+
+	baseDir := os.Getenv(DataDirEnvVar)
+	if len(baseDir) == 0 {
+		baseDir = DataDirectory
+	}
+
+	return path.Join(baseDir, jobName, fmt.Sprintf("out-%s", reducerIDStr))
+}
+
+func createFileWithDir(fileName string) (*os.File, error) {
+	dir := path.Dir(fileName)
+	err := os.MkdirAll(dir, 0700)
+	if err != nil {
+		return nil, err
+	}
+	return os.Create(fileName)
+}

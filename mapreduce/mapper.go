@@ -25,14 +25,14 @@ func Mapper(jobName string, mapperID int, fileName string, mapFunc Map, reducerC
 	for item := result.Front(); item != nil; item = item.Next() {
 		kv := item.Value.(KeyValue)
 		hash := getHash(kv.Key) //TODO allow to use user defined function
-		reducefilename := getIntermediateFileName(jobName, mapperID, int(hash)%reducerCount)
+		reducefilename := getIntermediateFileName(jobName, mapperID, int(hash)%reducerCount+1)
 
 		//create the file if does not exist
 		var reducefile *os.File
 		if exists(reducefilename) {
 			reducefile, err = os.OpenFile(reducefilename, os.O_APPEND|os.O_WRONLY, 0600)
 		} else {
-			reducefile, err = os.Create(reducefilename)
+			reducefile, err = createFileWithDir(reducefilename)
 		}
 
 		if err != nil {

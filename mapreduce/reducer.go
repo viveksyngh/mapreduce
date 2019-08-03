@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"container/list"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 )
@@ -18,7 +17,7 @@ func Reducer(jobName string, reducerID int, fileName string, reduceFunc Reduce, 
 
 	for i := 0; i < mapperCount; i++ {
 
-		_, bytes, err := readFile(getIntermediateFileName(jobName, i, reducerID))
+		_, bytes, err := readFile(getIntermediateFileName(jobName, i+1, reducerID))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -47,8 +46,8 @@ func Reducer(jobName string, reducerID int, fileName string, reduceFunc Reduce, 
 	sort.Strings(keys)
 
 	//Process data using user defined reduce function and write to output file
-	outputfileName := fmt.Sprintf("%s-out", fileName)
-	file, err := os.Create(outputfileName)
+	outputfileName := getOutputFileName(jobName, reducerID)
+	file, err := createFileWithDir(outputfileName)
 	if err != nil {
 		fmt.Println(err)
 		return
